@@ -45,3 +45,7 @@ android {
         disable 'InvalidPackage'
     }
 }
+dependencies {
+
+//    implementation 'com.blankj:utilcodex:1.25.8'
+}
