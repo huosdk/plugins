@@ -89,16 +89,16 @@ public class DeviceInfoPlugin implements MethodCallHandler {
 //      idfv安卓为安卓id
             build.put("idfv", getAndroidId());
             build.put("os", "android");
-            build.put("os_version", Build.VERSION.RELEASE);
+            build.put("osVersion", Build.VERSION.RELEASE);
             build.put("screen", HuoPhoneUtil.getResolution());
             build.put("imsi", PhoneUtils.getIMSI());
             build.put("userua", HuoPhoneUtil.getUserUa());
-            build.put("disk_space", HuoPhoneUtil.getDiskState());
-            build.put("open_time", HuoPhoneUtil.getOpenTime());
-            build.put("is_charge", "0");//需要注册广播获取，暂时不处理
-            build.put("screen_luminance", HuoPhoneUtil.getBrightness());//需要注册广播获取，暂时不处理
-            build.put("has_sim", PhoneUtils.isSimCardReady() ? "2" : "1");
-            build.put("is_break", HuoPhoneUtil.isDeviceRooted() ? "1" : "2");
+            build.put("diskSpace", HuoPhoneUtil.getDiskState());
+            build.put("openTime", HuoPhoneUtil.getOpenTime());
+            build.put("isCharge", "0");//需要注册广播获取，暂时不处理
+            build.put("screenLuminance", HuoPhoneUtil.getBrightness());
+            build.put("hasSim", PhoneUtils.isSimCardReady() ? "2" : "1");
+            build.put("isBreak", HuoPhoneUtil.isDeviceRooted() ? "1" : "2");
 
             build.put("net", NetworkUtils.getNetworkType());
             build.put("ip", NetworkUtils.getIPAddress(true));

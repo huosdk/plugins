@@ -60,6 +60,22 @@ class AndroidDeviceInfo {
     this.type,
     this.isPhysicalDevice,
     this.androidId,
+    this.deviceId,
+    this.idfv,
+    this.os,
+    this.osVersion,
+    this.screen,
+    this.imsi,
+    this.userua,
+    this.diskSpace,
+    this.openTime,
+    this.isCharge,
+    this.screenLuminance,
+    this.hasSim,
+    this.isBreak,
+    this.net,
+    this.ip,
+    this.mac,
   })  : supported32BitAbis = List<String>.unmodifiable(supported32BitAbis),
         supported64BitAbis = List<String>.unmodifiable(supported64BitAbis),
         supportedAbis = List<String>.unmodifiable(supportedAbis);
@@ -124,6 +140,36 @@ class AndroidDeviceInfo {
   /// The Android hardware device ID that is unique between the device + user and app signing.
   final String androidId;
 
+  /// android deviceId ->imei->androidId->meid->uuid; ios idfa
+  final String deviceId;
+
+  /// android id androidId; ios is idfv
+  final String idfv;
+
+  /// "android" or "ios"
+  final String os;
+
+  /// system os version
+  final String osVersion;
+
+  ///screen=screenW "*" screenH
+  final String screen;
+
+  final String imsi;
+
+  final String userua;
+
+  final String diskSpace;
+
+  final String openTime;
+  final String isCharge;
+  final String screenLuminance;
+  final String hasSim;
+  final String isBreak;
+  final String net;
+  final String ip;
+  final String mac;
+
   /// Deserializes from the message received from [_kChannel].
   static AndroidDeviceInfo _fromMap(Map<String, dynamic> map) {
     return AndroidDeviceInfo._(
@@ -148,6 +194,22 @@ class AndroidDeviceInfo {
       type: map['type'],
       isPhysicalDevice: map['isPhysicalDevice'],
       androidId: map['androidId'],
+      deviceId: map['deviceId'],
+      idfv: map['idfv'],
+      os: map['os'],
+      osVersion: map['osVersion'],
+      screen: map['screen'],
+      imsi: map['imsi'],
+      userua: map['userua'],
+      diskSpace: map['diskSpace'],
+      openTime: map['openTime'],
+      isCharge: map['isCharge'],
+      screenLuminance: map['screenLuminance'],
+      hasSim: map['hasSim'],
+      isBreak: map['isBreak'],
+      net: map['net'],
+      ip: map['ip'],
+      mac: map['mac'],
     );
   }
 
@@ -216,6 +278,7 @@ class AndroidBuildVersion {
 class IosDeviceInfo {
   IosDeviceInfo._({
     this.name,
+    this.brand,
     this.systemName,
     this.systemVersion,
     this.model,
@@ -223,8 +286,25 @@ class IosDeviceInfo {
     this.identifierForVendor,
     this.isPhysicalDevice,
     this.utsname,
+    this.deviceId,
+    this.idfv,
+    this.os,
+    this.osVersion,
+    this.screen,
+    this.imsi,
+    this.userua,
+    this.diskSpace,
+    this.openTime,
+    this.isCharge,
+    this.screenLuminance,
+    this.hasSim,
+    this.isBreak,
+    this.net,
+    this.ip,
+    this.mac,
   });
-
+  /// The consumer-visible brand with which the product/hardware will be associated, if any.
+  final String brand;
   /// Device name.
   final String name;
 
@@ -249,16 +329,63 @@ class IosDeviceInfo {
   /// Operating system information derived from `sys/utsname.h`.
   final IosUtsname utsname;
 
+  /// android deviceId ->imei->androidId->meid->uuid; ios idfa
+  final String deviceId;
+
+  /// android id androidId; ios is idfv
+  final String idfv;
+
+  /// "android" or "ios"
+  final String os;
+
+  /// system os version
+  final String osVersion;
+
+  ///screen=screenW "*" screenH
+  final String screen;
+
+  final String imsi;
+
+  final String userua;
+
+  final String diskSpace;
+
+  final String openTime;
+  final String isCharge;
+  final String screenLuminance;
+  final String hasSim;
+  final String isBreak;
+  final String net;
+  final String ip;
+  final String mac;
+
   /// Deserializes from the map message received from [_kChannel].
   static IosDeviceInfo _fromMap(Map<String, dynamic> map) {
     return IosDeviceInfo._(
       name: map['name'],
+      brand: "apple",
       systemName: map['systemName'],
       systemVersion: map['systemVersion'],
       model: map['model'],
       localizedModel: map['localizedModel'],
       identifierForVendor: map['identifierForVendor'],
       isPhysicalDevice: map['isPhysicalDevice'] == 'true',
+      deviceId: map['deviceId'],
+      idfv: map['idfv'],
+      os: map['os'],
+      osVersion: map['osVersion'],
+      screen: map['screen'],
+      imsi: map['imsi'],
+      userua: map['userua'],
+      diskSpace: map['diskSpace'],
+      openTime: map['openTime'],
+      isCharge: map['isCharge'],
+      screenLuminance: map['screenLuminance'],
+      hasSim: map['hasSim'],
+      isBreak: map['isBreak'],
+      net: map['net'],
+      ip: map['ip'],
+      mac: map['mac'],
       utsname: IosUtsname._fromMap(map['utsname']?.cast<String, dynamic>()),
     );
   }
