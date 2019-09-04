@@ -16,8 +16,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 typedef void VoidCallback();
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
   final _FakePlatformViewsController fakePlatformViewsController =
       _FakePlatformViewsController();
 

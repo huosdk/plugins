@@ -349,10 +349,15 @@
     [userContentController addUserScript:wrapperScript];
   }
 }
-
+   static NSString *oldUA=nil;
 - (void)updateUserAgent:(NSString*)userAgent {
   if (@available(iOS 9.0, *)) {
-    [_webView setCustomUserAgent:userAgent];
+    if(oldUA==nil){
+        UIWebView *uiWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
+        oldUA = [uiWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+    }
+    [_webView setCustomUserAgent:[NSString stringWithFormat:@"%@%@",oldUA,userAgent]];
+
   } else {
     NSLog(@"Updating UserAgent is not supported for Flutter WebViews prior to iOS 9.");
   }
