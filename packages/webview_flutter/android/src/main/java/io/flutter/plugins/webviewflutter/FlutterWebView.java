@@ -10,6 +10,7 @@ import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebStorage;
 import android.webkit.WebViewClient;
@@ -102,6 +103,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       case "loadUrl":
         loadUrl(methodCall, result);
         break;
+      case "setUserAgent":
+        setUserAgent(methodCall, result);
+        break;
       case "updateSettings":
         updateSettings(methodCall, result);
         break;
@@ -149,6 +153,13 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       headers = Collections.emptyMap();
     }
     webView.loadUrl(url, headers);
+    result.success(null);
+  }
+
+  private void setUserAgent(MethodCall methodCall, Result result){
+    Map<String, Object> request = (Map<String, Object>) methodCall.arguments;
+    String userAgent = (String) request.get("userAgent");
+    updateUserAgent(userAgent);
     result.success(null);
   }
 
@@ -286,6 +297,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     if(TextUtils.isEmpty(oldUserAgent)){
       oldUserAgent = webView.getSettings().getUserAgentString();
     }
+    Log.e("abner",oldUserAgent+userAgent);
     webView.getSettings().setUserAgentString(oldUserAgent+userAgent);
   }
 

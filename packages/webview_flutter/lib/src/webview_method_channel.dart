@@ -56,6 +56,12 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
   }
 
   @override
+  Future<void> setUserAgent(String userAgent) =>
+      _channel.invokeMethod<void>('setUserAgent', <String, dynamic>{
+        'userAgent': userAgent,
+      });
+
+  @override
   Future<String> currentUrl() => _channel.invokeMethod<String>('currentUrl');
 
   @override
