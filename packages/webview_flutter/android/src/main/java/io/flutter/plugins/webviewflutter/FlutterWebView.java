@@ -9,6 +9,7 @@ import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.View;
 import android.webkit.WebStorage;
 import android.webkit.WebViewClient;
@@ -280,9 +281,12 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
           new JavaScriptChannel(methodChannel, channelName, platformThreadHandler), channelName);
     }
   }
-
+  static String oldUserAgent=null;
   private void updateUserAgent(String userAgent) {
-    webView.getSettings().setUserAgentString(userAgent);
+    if(TextUtils.isEmpty(oldUserAgent)){
+      oldUserAgent = webView.getSettings().getUserAgentString();
+    }
+    webView.getSettings().setUserAgentString(oldUserAgent+userAgent);
   }
 
   @Override
