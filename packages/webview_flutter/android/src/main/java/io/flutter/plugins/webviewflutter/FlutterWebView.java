@@ -83,7 +83,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         webSettings.setDatabaseEnabled(true);
         webSettings.setUseWideViewPort(true); // 关键点
         webSettings.setAllowFileAccess(true); // 允许访问文件
-        webSettings.setSupportZoom(true); // 支持缩放
+//        webSettings.setSupportZoom(true); // 支持缩放
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setPluginState(WebSettings.PluginState.ON);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE); // 不加载缓存内容
@@ -104,8 +104,10 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             @Override
             public void onHideCustomView() {
 //                super.onHideCustomView();
-                hideCustomView();
+                Log.e("abner","onHideCustomView");
                 super.onHideCustomView();
+
+                hideCustomView();
             }
         });
 
@@ -160,7 +162,6 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         if (mCustomView == null) {
             return;
         }
-
         setStatusBarVisibility(true);
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         FrameLayout decor = (FrameLayout) mActivity.getWindow().getDecorView();
