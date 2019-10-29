@@ -72,10 +72,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         WebSettings webSettings = webView.getSettings();
         webSettings.setDomStorageEnabled(true);
         webSettings.setLoadWithOverviewMode(true);
-        webSettings.setBuiltInZoomControls(true);
+//        webSettings.setBuiltInZoomControls(true);
         webSettings.setJavaScriptEnabled(true);
         webSettings.setUseWideViewPort(true);
-        webSettings.setSupportZoom(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         webSettings.setGeolocationEnabled(true);
@@ -83,7 +82,6 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         webSettings.setDatabaseEnabled(true);
         webSettings.setUseWideViewPort(true); // 关键点
         webSettings.setAllowFileAccess(true); // 允许访问文件
-//        webSettings.setSupportZoom(true); // 支持缩放
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setPluginState(WebSettings.PluginState.ON);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE); // 不加载缓存内容
