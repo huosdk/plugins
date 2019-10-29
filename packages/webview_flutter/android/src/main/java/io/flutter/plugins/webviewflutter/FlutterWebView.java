@@ -76,8 +76,6 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setUseWideViewPort(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
-        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        webSettings.setGeolocationEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
         webSettings.setUseWideViewPort(true); // 关键点
@@ -85,6 +83,12 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setPluginState(WebSettings.PluginState.ON);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE); // 不加载缓存内容
+
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP){
+            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        }
+
+
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Nullable
