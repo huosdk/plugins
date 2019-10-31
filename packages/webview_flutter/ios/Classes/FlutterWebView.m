@@ -104,9 +104,9 @@
     
     if ([keyPath isEqualToString:@"estimatedProgress"]) {
         
-        if (object ==self.webView) {
-            self.lineProcessView.processValue = self.webView.estimatedProgress;
-            if(self.webView.estimatedProgress >=1.0f) {
+        if (object ==_webView) {
+            self.lineProcessView.processValue = _webView.estimatedProgress;
+            if(_webView.estimatedProgress >=1.0f) {
                 
                 [UIView animateWithDuration:0.3 delay:0.3 options:UIViewAnimationOptionCurveEaseOut animations:^{
                     [self.lineProcessView setAlpha:0.0f];
