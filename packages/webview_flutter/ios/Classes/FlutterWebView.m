@@ -5,6 +5,7 @@
 #import "FlutterWebView.h"
 #import "FLTWKNavigationDelegate.h"
 #import "JavaScriptChannelHandler.h"
+#import "LineProcessView.h"
 
 @implementation FLTWebViewFactory {
   NSObject<FlutterBinaryMessenger>* _messenger;
@@ -32,6 +33,10 @@
   return webviewController;
 }
 
+@end
+
+@interface FLTWebViewController ()
+@property (strong , nonatomic)LineProcessView * lineProcessView;
 @end
 
 @implementation FLTWebViewController {
@@ -66,8 +71,8 @@
 
     WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
     configuration.userContentController = userContentController;
-    //[self updateAutoMediaPlaybackPolicy:args[@"autoMediaPlaybackPolicy"]
-    //                  inConfiguration:configuration];
+//    [self updateAutoMediaPlaybackPolicy:args[@"autoMediaPlaybackPolicy"]
+//                        inConfiguration:configuration];
 
     _webView = [[WKWebView alloc] initWithFrame:frame configuration:configuration];
     _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
@@ -77,6 +82,11 @@
       [weakSelf onMethodCall:call result:result];
     }];
 
+      // 添加进度条
+      [_webView addSubview:self.lineProcessView];
+      //添加观察者模式
+      [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
+      
     [self applySettings:settings];
     // TODO(amirh): return an error if apply settings failed once it's possible to do so.
     // https://github.com/flutter/flutter/issues/36228
@@ -87,6 +97,29 @@
     }
   }
   return self;
+}
+
+#pragma mark - 监听加载进度
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    
+    if ([keyPath isEqualToString:@"estimatedProgress"]) {
+        
+        if (object ==self.webView) {
+            self.lineProcessView.processValue = self.webView.estimatedProgress;
+            if(self.webView.estimatedProgress >=1.0f) {
+                
+                [UIView animateWithDuration:0.3 delay:0.3 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                    [self.lineProcessView setAlpha:0.0f];
+                } completion:^(BOOL finished) {
+                    [self.lineProcessView removeFromSuperview];
+                }];
+            }
+        }
+        else
+        {
+            [super observeValueForKeyPath:keyPath ofObject:object  change:change context:context];
+        }
+    }
 }
 
 - (UIView*)view {
@@ -371,6 +404,18 @@
   } else {
     NSLog(@"Updating UserAgent is not supported for Flutter WebViews prior to iOS 9.");
   }
+}
+
+-(LineProcessView *)lineProcessView{
+    if (!_lineProcessView) {
+        _lineProcessView = [[LineProcessView alloc]initWithFrame:CGRectMake(0, 0, 200, 30)];
+        _lineProcessView.center = CGPointMake([UIScreen mainScreen].bounds.size.width / 2, 400);
+    }
+    return _lineProcessView;
+}
+
+- (void)dealloc{
+    [_webView removeObserver:self forKeyPath:@"estimatedProgress"];
 }
 
 @end
