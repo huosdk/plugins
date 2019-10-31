@@ -5,7 +5,7 @@
 #import "FlutterWebView.h"
 #import "FLTWKNavigationDelegate.h"
 #import "JavaScriptChannelHandler.h"
-#import "LineProcessView.h"
+#import "XHFriendlyLoadingView.h"
 
 @implementation FLTWebViewFactory {
   NSObject<FlutterBinaryMessenger>* _messenger;
@@ -36,7 +36,7 @@
 @end
 
 @interface FLTWebViewController ()
-@property (strong , nonatomic)LineProcessView * lineProcessView;
+@property (nonatomic, strong) XHFriendlyLoadingView *friendlyLoadingView;
 @end
 
 @implementation FLTWebViewController {
@@ -83,7 +83,9 @@
     }];
 
       // 添加进度条
-      [_webView addSubview:self.lineProcessView];
+      _friendlyLoadingView = [[XHFriendlyLoadingView alloc] initWithFrame:_webView.bounds];
+      [_webView addSubview:self.friendlyLoadingView];
+      
       //添加观察者模式
       [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
       
@@ -104,14 +106,14 @@
     
     if ([keyPath isEqualToString:@"estimatedProgress"]) {
         
-        if (object ==_webView) {
-            self.lineProcessView.processValue = _webView.estimatedProgress;
-            if(_webView.estimatedProgress >=1.0f) {
+        if (object ==self.webView) {
+            [self.friendlyLoadingView showFriendlyLoadingViewWithText:@"正在全力加载..." loadingAnimated:YES];
+            if(self.webView.estimatedProgress >=0.9f) {
                 
                 [UIView animateWithDuration:0.3 delay:0.3 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                    [self.lineProcessView setAlpha:0.0f];
+                    [_friendlyLoadingView setAlpha:0.0f];
                 } completion:^(BOOL finished) {
-                    [self.lineProcessView removeFromSuperview];
+                    [_friendlyLoadingView removeFromSuperview];
                 }];
             }
         }
@@ -406,15 +408,8 @@
   }
 }
 
--(LineProcessView *)lineProcessView{
-    if (!_lineProcessView) {
-        _lineProcessView = [[LineProcessView alloc]initWithFrame:CGRectMake(0, 0, 200, 30)];
-        _lineProcessView.center = CGPointMake([UIScreen mainScreen].bounds.size.width / 2, 400);
-    }
-    return _lineProcessView;
-}
-
 - (void)dealloc{
+    self.friendlyLoadingView = nil;
     [_webView removeObserver:self forKeyPath:@"estimatedProgress"];
 }
 
