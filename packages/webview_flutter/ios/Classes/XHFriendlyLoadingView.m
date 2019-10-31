@@ -25,7 +25,7 @@
 }
 
 - (void)_setup {
-    self.backgroundColor = [UIColor colorWithRed:(244 / 255.f) green:(246 / 255.f) blue:(252 / 255.f) alpha:1.f];
+    self.backgroundColor = [UIColor clearColor];
     
     _activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     _activityIndicatorView.alpha = 0.;

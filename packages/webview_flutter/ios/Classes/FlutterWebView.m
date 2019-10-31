@@ -83,7 +83,7 @@
     }];
 
       // 添加进度条
-      _friendlyLoadingView = [[XHFriendlyLoadingView alloc] initWithFrame:_webView.bounds];
+      _friendlyLoadingView = [[XHFriendlyLoadingView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
       [_webView addSubview:self.friendlyLoadingView];
       
       //添加观察者模式
@@ -106,9 +106,9 @@
     
     if ([keyPath isEqualToString:@"estimatedProgress"]) {
         
-        if (object ==self.webView) {
-            [self.friendlyLoadingView showFriendlyLoadingViewWithText:@"正在全力加载..." loadingAnimated:YES];
-            if(self.webView.estimatedProgress >=0.9f) {
+        if (object ==_webView) {
+            [self.friendlyLoadingView showFriendlyLoadingViewWithText:@"全力加载中..." loadingAnimated:YES];
+            if(_webView.estimatedProgress >=0.9f) {
                 
                 [UIView animateWithDuration:0.3 delay:0.3 options:UIViewAnimationOptionCurveEaseOut animations:^{
                     [_friendlyLoadingView setAlpha:0.0f];
