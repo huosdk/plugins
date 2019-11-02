@@ -19,10 +19,10 @@
 - (void)webView:(WKWebView*)webView
     decidePolicyForNavigationAction:(WKNavigationAction*)navigationAction
                     decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-  if (!self.hasDartNavigationDelegate) {
-    decisionHandler(WKNavigationActionPolicyAllow);
-    return;
-  }
+  // 如果是跳转一个新页面
+   if (navigationAction.targetFrame == nil) {
+        [webView loadRequest:navigationAction.request];
+    }
   NSDictionary* arguments = @{
     @"url" : navigationAction.request.URL.absoluteString,
     @"isForMainFrame" : @(navigationAction.targetFrame.isMainFrame)
@@ -58,5 +58,14 @@
 
 - (void)webView:(WKWebView*)webView didFinishNavigation:(WKNavigation*)navigation {
   [_methodChannel invokeMethod:@"onPageFinished" arguments:@{@"url" : webView.URL.absoluteString}];
+}
+
+
+- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures{
+    if(navigationAction.targetFrame == nil || !navigationAction.targetFrame.isMainFrame)
+    {
+        [webView loadRequest:navigationAction.request];
+    }
+    return nil;
 }
 @end
