@@ -74,7 +74,7 @@
     [self updateAutoMediaPlaybackPolicy:args[@"autoMediaPlaybackPolicy"]
                         inConfiguration:configuration];
 
-    _webView = [[WKWebView alloc] initWithFrame:frame configuration:configuration];
+    _webView = [[WKWebView alloc] initWithFrame:finitWithFramerame configuration:configuration];
     _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
     _webView.navigationDelegate = _navigationDelegate;
     __weak __typeof__(self) weakSelf = self;
@@ -95,7 +95,15 @@
 
     NSString* initialUrl = args[@"initialUrl"];
     if ([initialUrl isKindOfClass:[NSString class]]) {
-      [self loadUrl:initialUrl];
+      NSMutableDictionary<NSString*, NSObject*>* initialPostParameters =
+                args[@"initialPostParameters"];
+            if (initialPostParameters == nil || initialPostParameters == (id)[NSNull null]) {
+              [self loadUrl:initialUrl];
+            } else {
+              [self loadUrlPost:initialUrl
+                    withHeaders:[NSMutableDictionary dictionary]
+                  initialParams:initialPostParameters];
+            }
     }
   }
   return self;
@@ -375,6 +383,41 @@
   [request setAllHTTPHeaderFields:headers];
   [_webView loadRequest:request];
   return true;
+}
+
+
+- (NSMutableString*)createPostParams:(NSDictionary<NSString*, NSObject*>*)params {
+  NSMutableString* resultString = [NSMutableString string];
+  for (NSString* key in [params allKeys]) {
+    if ([resultString length] > 0) [resultString appendString:@"&"];
+    [resultString appendFormat:@"%@=%@", key, [params objectForKey:key]];
+  }
+  return resultString;
+}
+
+- (bool)loadUrlPost:(NSString*)url
+            withHeaders:(NSDictionary<NSString*, NSString*>*)headers
+          initialParams:(NSDictionary<NSString*, NSObject*>*)params {
+   NSURL* nsUrl = [NSURL URLWithString:url];
+   if (!nsUrl) {
+     return false;
+   }
+
+   NSMutableString* resultString = [self createPostParams:params];
+
+   NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:nsUrl];
+
+   NSData* postData = [resultString dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+   NSString* contentLength = [NSString stringWithFormat:@"%ld", (unsigned long)postData.length];
+
+   [request setHTTPMethod:@"POST"];
+   [request setHTTPBody:postData];
+   [request setValue:contentLength forHTTPHeaderField:@"Content-Length"];
+   [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+
+   [request setAllHTTPHeaderFields:headers];
+   [_webView loadRequest:request];
+   return true;
 }
 
 - (void)registerJavaScriptChannels:(NSSet*)channelNames
