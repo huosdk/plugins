@@ -24,6 +24,8 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -131,8 +133,32 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         }
         if (params.containsKey("initialUrl")) {
             String url = (String) params.get("initialUrl");
-            webView.loadUrl(url);
+
+            Map<String, Object> postParameters =
+                    (Map<String, Object>) params.get("initialPostParameters");
+            if (postParameters != null && !postParameters.isEmpty()) {
+                try {
+                    webView.postUrl(url, initialParametersToString(postParameters).getBytes());
+                } catch (UnsupportedEncodingException e) {
+                    Log.e("abner", "" + e.getMessage(), e);
+                }
+            } else {
+                webView.loadUrl(url);
+            }
         }
+    }
+
+    private static String initialParametersToString(Map<String, Object> parameters)throws UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            sb.append(
+                    URLEncoder.encode(entry.getKey(), "UTF-8")
+                            + "="
+                            + URLEncoder.encode(entry.getValue().toString(), "UTF-8")
+                            + "&");
+        }
+
+        return sb.deleteCharAt(sb.length() - 1).toString();
     }
 
 

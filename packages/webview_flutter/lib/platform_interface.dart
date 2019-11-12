@@ -261,6 +261,7 @@ class WebSettings {
 class CreationParams {
   CreationParams({
     this.initialUrl,
+    this.initialPostParameters,
     this.webSettings,
     this.javascriptChannelNames,
     this.userAgent,
@@ -272,6 +273,10 @@ class CreationParams {
   ///
   /// When null the webview will be created without loading any page.
   final String initialUrl;
+
+
+  /// The initial POST parameters used on initial URL load.
+  final Map<String, dynamic> initialPostParameters;
 
   /// The initial [WebSettings] for the new webview.
   ///
