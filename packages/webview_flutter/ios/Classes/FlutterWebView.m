@@ -83,11 +83,11 @@
     }];
 
       // 添加进度条
-      _friendlyLoadingView = [[XHFriendlyLoadingView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-      [_webView addSubview:self.friendlyLoadingView];
-      
-      //添加观察者模式
-      [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
+      //_friendlyLoadingView = [[XHFriendlyLoadingView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+      //[_webView addSubview:self.friendlyLoadingView];
+      //
+      ////添加观察者模式
+      //[_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
       
     [self applySettings:settings];
     // TODO(amirh): return an error if apply settings failed once it's possible to do so.
