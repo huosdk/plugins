@@ -410,7 +410,7 @@
 
 - (void)dealloc{
     self.friendlyLoadingView = nil;
-    [_webView removeObserver:self forKeyPath:@"estimatedProgress"];
+    //[_webView removeObserver:self forKeyPath:@"estimatedProgress"];
 }
 
 @end
