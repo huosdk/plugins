@@ -7,9 +7,21 @@ package io.flutter.plugins.webviewflutter;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
 import android.content.Context;
+import android.os.Build;
+import android.util.Log;
+import android.view.ActionMode;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
+import android.widget.AbsoluteLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 /**
  * A WebView subclass that mirrors the same implementation hacks that the system WebView does in
@@ -22,14 +34,27 @@ import android.webkit.WebView;
  * <p>See also {@link ThreadedInputConnectionProxyAdapterView}.
  */
 final class InputAwareWebView extends WebView {
-  private final View containerView;
-
+  private static final String TAG = "InputAwareWebView";
   private View threadedInputConnectionProxyView;
   private ThreadedInputConnectionProxyAdapterView proxyAdapterView;
+  private View containerView;
 
   InputAwareWebView(Context context, View containerView) {
     super(context);
     this.containerView = containerView;
+  }
+
+  void setContainerView(View containerView) {
+    this.containerView = containerView;
+
+    if (proxyAdapterView == null) {
+      return;
+    }
+
+    Log.w(TAG, "The containerView has changed while the proxyAdapterView exists.");
+    if (containerView != null) {
+      setInputConnectionTarget(proxyAdapterView);
+    }
   }
 
   /**
@@ -81,6 +106,12 @@ final class InputAwareWebView extends WebView {
       // This isn't a new ThreadedInputConnectionProxyView. Ignore it.
       return super.checkInputConnectionProxy(view);
     }
+    if (containerView == null) {
+      Log.e(
+          TAG,
+          "Can't create a proxy view because there's no container view. Text input may not work.");
+      return super.checkInputConnectionProxy(view);
+    }
 
     // We've never seen this before, so we make the assumption that this is WebView's
     // ThreadedInputConnectionProxyView. We are making the assumption that the only view that could
@@ -120,6 +151,10 @@ final class InputAwareWebView extends WebView {
       // No need to reset the InputConnection to the default thread if we've never changed it.
       return;
     }
+    if (containerView == null) {
+      Log.e(TAG, "Can't reset the input connection to the container view because there is none.");
+      return;
+    }
     setInputConnectionTarget(/*targetView=*/ containerView);
   }
 
@@ -132,6 +167,13 @@ final class InputAwareWebView extends WebView {
    * InputConnections should be created on.
    */
   private void setInputConnectionTarget(final View targetView) {
+    if (containerView == null) {
+      Log.e(
+          TAG,
+          "Can't set the input connection target because there is no containerView to use as a handler.");
+      return;
+    }
+
     targetView.requestFocus();
     containerView.post(
         new Runnable() {
@@ -154,5 +196,132 @@ final class InputAwareWebView extends WebView {
             imm.isActive(containerView);
           }
         });
+  }
+
+  @Override
+  public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+    InputConnection connection = super.onCreateInputConnection(outAttrs);
+    if (connection == null && containerView != null) {
+      /// solve the problem of some models stuck and flashing back
+      containerView
+          .getHandler()
+          .postDelayed(
+              new Runnable() {
+                @Override
+                public void run() {
+                  InputMethodManager imm =
+                      (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
+                  if (!imm.isAcceptingText()) {
+                    imm.hideSoftInputFromWindow(
+                        containerView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                  }
+                }
+              },
+              128);
+    }
+    return connection;
+  }
+
+  private MotionEvent ev;
+
+  @Override
+  public boolean dispatchTouchEvent(MotionEvent ev) {
+    this.ev = ev;
+    return super.dispatchTouchEvent(ev);
+  }
+
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    if (event.getAction() == MotionEvent.ACTION_DOWN && floatingActionView != null) {
+      this.removeView(floatingActionView);
+      floatingActionView = null;
+    }
+    return super.onTouchEvent(event);
+  }
+
+  @Override
+  public ActionMode startActionMode(ActionMode.Callback callback) {
+    return rebuildActionMode(super.startActionMode(callback), callback);
+  }
+
+  @Override
+  public ActionMode startActionMode(ActionMode.Callback callback, int type) {
+    return rebuildActionMode(super.startActionMode(callback, type), callback);
+  }
+
+  private LinearLayout floatingActionView;
+
+  /** rebuild the menu */
+  private ActionMode rebuildActionMode(
+      final ActionMode actionMode, final ActionMode.Callback callback) {
+    if (floatingActionView != null) {
+      this.removeView(floatingActionView);
+      floatingActionView = null;
+    }
+    floatingActionView =
+        (LinearLayout)
+            LayoutInflater.from(getContext()).inflate(R.layout.floating_action_mode, null);
+    for (int i = 0; i < actionMode.getMenu().size(); i++) {
+      final MenuItem menu = actionMode.getMenu().getItem(i);
+      TextView text =
+          (TextView)
+              LayoutInflater.from(getContext()).inflate(R.layout.floating_action_mode_item, null);
+      text.setText(menu.getTitle());
+      floatingActionView.addView(text);
+      text.setOnClickListener(
+          new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+              InputAwareWebView.this.removeView(floatingActionView);
+              floatingActionView = null;
+              callback.onActionItemClicked(actionMode, menu);
+            }
+          });
+      // supports up to 4 options
+      if (i >= 4) break;
+    }
+
+    final int x = (int) ev.getX();
+    final int y = (int) ev.getY();
+    floatingActionView
+        .getViewTreeObserver()
+        .addOnGlobalLayoutListener(
+            new ViewTreeObserver.OnGlobalLayoutListener() {
+              @Override
+              public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT >= 16) {
+                  floatingActionView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                } else {
+                  floatingActionView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+                onFloatingActionGlobalLayout(x, y);
+              }
+            });
+    this.addView(floatingActionView, new AbsoluteLayout.LayoutParams(-2, -2, x, y));
+    actionMode.getMenu().clear();
+    return actionMode;
+  }
+
+  /** reposition menu options */
+  private void onFloatingActionGlobalLayout(int x, int y) {
+    int maxWidth = InputAwareWebView.this.getWidth();
+    int maxHeight = InputAwareWebView.this.getHeight();
+    int width = floatingActionView.getWidth();
+    int height = floatingActionView.getHeight();
+    int curx = x - width / 2;
+    if (curx < 0) {
+      curx = 0;
+    } else if (curx + width > maxWidth) {
+      curx = maxWidth - width;
+    }
+    int cury = y + 10;
+    if (cury + height > maxHeight) {
+      cury = y - height - 10;
+    }
+
+    InputAwareWebView.this.updateViewLayout(
+        floatingActionView,
+        new AbsoluteLayout.LayoutParams(-2, -2, curx, cury + InputAwareWebView.this.getScrollY()));
+    floatingActionView.setAlpha(1);
   }
 }
