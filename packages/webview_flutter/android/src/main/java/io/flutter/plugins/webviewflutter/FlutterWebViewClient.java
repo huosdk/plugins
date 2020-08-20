@@ -16,6 +16,8 @@ import androidx.webkit.WebViewClientCompat;
 import io.flutter.plugin.common.MethodChannel;
 import java.util.HashMap;
 import java.util.Map;
+import android.net.Uri;
+import android.content.Intent;
 
 // We need to use WebViewClientCompat to get
 // shouldOverrideUrlLoading(WebView view, WebResourceRequest request)
@@ -48,6 +50,20 @@ class FlutterWebViewClient {
     // we just return false to allow the navigation.
     //
     // For more details see: https://github.com/flutter/flutter/issues/25329#issuecomment-464863209
+    if(!request.isForMainFrame()){
+      String url = request.getUrl().toString();
+      if (url.contains("http:") || url.contains("https:") || url.contains("ftp:")) {
+        return false;
+      } else {
+        Uri uri = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (intent.resolveActivity(view.getContext().getPackageManager()) != null) {
+          view.getContext().startActivity(intent);
+        }
+        return true;
+      }
+    }
     return request.isForMainFrame();
   }
 
