@@ -1,3 +1,20 @@
+## 0.3.23
+
+* Add support for building `WebView` widget with Android hybrid views. To use this feature, set
+  `WebView.platform` to an instance of `SurfaceAndroidWebView` and add the following lines to your
+  `android/app/src/main/AndroidManifest.xml`:
+```xml
+<application>
+.
+.
+<meta-data
+    android:name="io.flutter.embedded_views_preview"
+    android:value="true" />
+.
+.
+</application>
+```
+
 ## 0.3.22+2
 
 * Update package:e2e reference to use the local version in the flutter/plugins
