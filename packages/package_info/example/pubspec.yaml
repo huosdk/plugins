@@ -6,11 +6,14 @@ dependencies:
     sdk: flutter
   package_info:
     path: ../
+  integration_test:
+    path: ../../integration_test
 
 dev_dependencies:
   flutter_driver:
     sdk: flutter
   test: any
+  pedantic: ^1.8.0
 
 flutter:
   uses-material-design: true

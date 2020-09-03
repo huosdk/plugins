@@ -7,6 +7,13 @@ dependencies:
   android_intent:
     path: ../
 
+dev_dependencies:
+  integration_test:
+    path: ../../integration_test
+  flutter_driver:
+    sdk: flutter
+  pedantic: ^1.8.0
+
 # The following section is specific to Flutter.
 flutter:
   uses-material-design: true
