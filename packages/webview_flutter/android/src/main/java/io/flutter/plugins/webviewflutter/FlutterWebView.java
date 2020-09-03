@@ -121,6 +121,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     switch (methodCall.method) {
       case "loadUrl":
         loadUrl(methodCall, result);
+                break;
+            case "setUserAgent":
+                setUserAgent(methodCall, result);
         break;
       case "updateSettings":
         updateSettings(methodCall, result);
@@ -186,7 +189,12 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     webView.loadUrl(url, headers);
     result.success(null);
   }
-
+    private void setUserAgent(MethodCall methodCall, Result result) {
+        Map<String, Object> request = (Map<String, Object>) methodCall.arguments;
+        String userAgent = (String) request.get("userAgent");
+        updateUserAgent(userAgent);
+        result.success(null);
+    }
   private void canGoBack(Result result) {
     result.success(webView.canGoBack());
   }
@@ -350,8 +358,12 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     }
   }
 
+  static String oldUserAgent = null;
   private void updateUserAgent(String userAgent) {
-    webView.getSettings().setUserAgentString(userAgent);
+    if (TextUtils.isEmpty(oldUserAgent)) {
+      oldUserAgent = webView.getSettings().getUserAgentString();
+    }
+    webView.getSettings().setUserAgentString(oldUserAgent + userAgent);
   }
 
   @Override

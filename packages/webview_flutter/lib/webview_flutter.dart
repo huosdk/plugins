@@ -603,6 +603,12 @@ class WebViewController {
     return _webViewPlatformController.loadUrl(url, headers);
   }
 
+
+  Future<void> setUserAgent(String userAgent)
+  {
+    return _webViewPlatformController.setUserAgent(userAgent);
+  }
+
   /// Accessor to the current URL that the WebView is displaying.
   ///
   /// If [WebView.initialUrl] was never specified, returns `null`.

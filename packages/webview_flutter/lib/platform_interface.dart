@@ -182,6 +182,15 @@ abstract class WebViewPlatformController {
         "WebView loadUrl is not implemented on the current platform");
   }
 
+  /// 设置userua 是拼接在原来的ua后面
+  Future<void> setUserAgent(
+      String userAgent,
+      ) {
+    throw UnimplementedError(
+        "setUserAgent is not implemented on the current platform");
+  }
+
+
   /// Updates the webview settings.
   ///
   /// Any non null field in `settings` will be set as the new setting value.

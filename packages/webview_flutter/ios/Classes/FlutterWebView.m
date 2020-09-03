@@ -128,7 +128,9 @@
     [self onUpdateSettings:call result:result];
   } else if ([[call method] isEqualToString:@"loadUrl"]) {
     [self onLoadUrl:call result:result];
-  } else if ([[call method] isEqualToString:@"canGoBack"]) {
+  }else if ([[call method] isEqualToString:@"setUserAgent"]) {
+      [self setUserAgent:call result:result];
+  }else if ([[call method] isEqualToString:@"canGoBack"]) {
     [self onCanGoBack:call result:result];
   } else if ([[call method] isEqualToString:@"canGoForward"]) {
     [self onCanGoForward:call result:result];
@@ -181,6 +183,13 @@
   } else {
     result(nil);
   }
+}
+
+- (void)setUserAgent:(FlutterMethodCall*)call result:(FlutterResult)result {
+    NSString* userAgent = [call arguments][@"userAgent"];
+    [self updateUserAgent:[userAgent isEqual:[NSNull null]] ? nil : userAgent];
+    result(nil);
+    
 }
 
 - (void)onCanGoBack:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -429,9 +438,16 @@
   }
 }
 
+static NSString *oldUA=nil;
 - (void)updateUserAgent:(NSString*)userAgent {
   if (@available(iOS 9.0, *)) {
-    [_webView setCustomUserAgent:userAgent];
+      NSLog(@"userAgent:%@",userAgent);
+    if(oldUA==nil){
+        UIWebView *uiWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
+        oldUA = [uiWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+    }
+    [_webView setCustomUserAgent:[NSString stringWithFormat:@"%@%@",oldUA,userAgent]];
+
   } else {
     NSLog(@"Updating UserAgent is not supported for Flutter WebViews prior to iOS 9.");
   }
