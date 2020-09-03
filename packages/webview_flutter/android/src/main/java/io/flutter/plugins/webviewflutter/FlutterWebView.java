@@ -9,6 +9,7 @@ import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.View;
 import android.webkit.WebStorage;
 import android.webkit.WebViewClient;
